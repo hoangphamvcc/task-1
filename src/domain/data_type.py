@@ -15,7 +15,7 @@ class JsonDataType:
 
         for item in args:
             self._items.append({'amount': item['amount'], 'service_name': item['service_name'],
-                                'maintain_hour': item['maintain_hour']})
+                                })
         return {'items': self._items, 'meta': self._meta}
 
     def maintain_fee_resource(self, *args: dict) -> dict:
@@ -58,8 +58,8 @@ class JsonDataType:
 
         for item in args:
             self._items.append({'service_name': item['service_name'],
-                                'maintain_hours': item['maintain_hours'],
-                                'amount': item['amount']})
+                                'maintain_hour': item['maintain_hour'],
+                                })
         return {'items': self._items, 'meta': self._meta}
 
     def clear(self):
@@ -95,6 +95,27 @@ class MaintainServiceDatatype:
         self.maintain_hour = [{'maintain_hour': item['maintain_hour'],
                                'service_name': item['service_name']}
                               for item in args]
+
+
+class MaintainServiceHourDatatype:
+    def __init__(self, *args: dict):
+        self._meta = {'total': len(args)}
+        self._items = [{'service_name': item['service_name'],
+                        'maintain_hour': item['maintain_hour'],
+                        }
+                       for item in args]
+        self.payload = {'items': self._items, 'meta': self._meta}
+
+
+class MaintainServiceFeeDatatype:
+    def __init__(self, *args: dict):
+        self._meta = {'total': len(args)}
+        self._items = [{'service_name': item['service_name'],
+                        'amount': item['amount'],
+                        }
+                       for item in args]
+        self.payload = {'items': self._items, 'meta': self._meta}
+
 
 
 class MaintainHourPlanDatatype:

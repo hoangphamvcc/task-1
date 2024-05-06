@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from src.domain.data_type import JsonDataType, MaintainFeeService, MaintainServiceDatatype, MaintainHourPlanDatatype,\
-    MaintainanceFeePlanDatatype
+    MaintainanceFeePlanDatatype, MaintainServiceHourDatatype, MaintainServiceFeeDatatype
 from src.domain.task_demo import ApiControl
 from src.common.mongo import MongoDB
 from src.handler.transfer_maintain_fee import Transfer_maintain_fee
@@ -18,18 +18,17 @@ def api_maintain_fee_service():
     for index, data in (enumerate(datas)):  # add data to datas
         mongodb = MongoDB().maintain_service
         try:
-            request_data = {'service_name': data['service_name'], 'amount': data['amount'],
-                            "maintain_hour": data['maintain_hour']}
+            request_data = {'service_name': data['service_name'], 'amount': data['amount']}
             if next(mongodb.find({'service_name': data['service_name']}), None) is None:
                 mongodb.insert_one(request_data)
 
             else:
                 mongodb.update_one({'service_name': data['service_name']},
-                                   {'$set': {'amount': data['amount'], 'maintain_hour': data['maintain_hour']}})
+                                   {'$set': {'amount': data['amount']}})
             response_data.append(request_data)
         except:
             return 'api error'
-    return jsonify(JsonDataType().maintain_fee_service(*response_data)), 200
+    return jsonify(MaintainServiceFeeDatatype(*response_data).payload), 200
 
 
 @app.route('/api/maintainance-fee/service', methods=['GET'])  # get data to db
@@ -97,13 +96,22 @@ def api_maintain_hour_resource():
 def api_maintain_hour_service():
     datas = request.json
     response_data = []
-    for data in datas:  # add data to datas
-        # confirm data
-        mongodb = MongoDB().maintain_hour_service
-        request_data = {'service_name': data['service_name'], 'maintain_hours': data['maintain_hours']}
-        mongodb.insert_one(request_data)
-        response_data.append(request_data)
-    return jsonify(JsonDataType().maintain_hour_service(*response_data)), 200
+    # confirm data
+    for index, data in (enumerate(datas)):  # add data to datas
+        mongodb = MongoDB().maintain_service
+        try:
+            request_data = {'service_name': data['service_name'],
+                            "maintain_hour": data['maintain_hour']}
+            if next(mongodb.find({'service_name': data['service_name']}), None) is None:
+                mongodb.insert_one(request_data)
+
+            else:
+                mongodb.update_one({'service_name': data['service_name']},
+                                   {'$set': {'maintain_hour': data['maintain_hour']}})
+            response_data.append(request_data)
+        except:
+            return 'api error'
+    return jsonify(MaintainServiceHourDatatype(*response_data).payload), 200
 
 
 # API 5
